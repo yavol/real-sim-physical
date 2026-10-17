@@ -1,5 +1,7 @@
 # Hosted demos
 
+Production: [real-sim-physical.vercel.app](https://real-sim-physical.vercel.app/). Project: [yavol's Vercel workspace](https://vercel.com/yavols-projects/real-sim-physical).
+
 One Vercel project serves the launch page at `/`, the collection studio at `/collect`, and the robot console at `/robot`. Production builds use the repository root, `npm ci`, `npm run build`, and output directory `dist`. Connect `yavol/real-sim-physical` with `main` as the production branch to deploy each push automatically.
 
 ## Credentials and access
