@@ -1,0 +1,14 @@
+{
+  "name": "real-sim-physical",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "24.x" },
+  "scripts": {
+    "build": "node web/build.mjs",
+    "dev": "node --env-file-if-exists=.env.local web/dev.mjs",
+    "check": "node --check api/handler.js && node --check web/handler.mjs && node --check web/auth.mjs && node --check web/public/hub.js",
+    "test": "node --test web/test/*.test.mjs"
+  },
+  "dependencies": { "@mediapipe/tasks-vision": "0.10.32" }
+}

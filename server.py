@@ -2,7 +2,9 @@
 import asyncio
 import base64
 import json
+import os
 import re
+import secrets
 from pathlib import Path
 import threading
 import time
@@ -15,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).parent
-RUNS = ROOT / "artifacts" / "runs"
+RUNS = Path(os.environ.get("ROBOT_RUNS_DIR", ROOT / "artifacts" / "runs"))
 RUNS.mkdir(parents=True, exist_ok=True)
 api = FastAPI(title="Tabletop / GR-1 command lab")
 api.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
@@ -25,6 +27,7 @@ state = {"busy": False, "run_id": None, "status": "Ready to connect", "health": 
 events = []
 sequence = 0
 robot = None
+persist_runs = lambda: None
 
 
 def get_robot():
@@ -54,6 +57,12 @@ def publish(event):
 
 @api.middleware("http")
 async def local_origin(request: Request, call_next):
+    web_token = os.environ.get("ROBOT_WEB_TOKEN")
+    if web_token:
+        supplied = request.headers.get("authorization", "").removeprefix("Bearer ")
+        if not secrets.compare_digest(supplied, web_token):
+            return JSONResponse(status_code=401, content={"detail": "Gateway authentication required"})
+        return await call_next(request)
     origin = request.headers.get("origin")
     if request.method == "POST" and origin and origin not in ("http://127.0.0.1:8765", "http://localhost:8765"):
         return JSONResponse(status_code=403, content={"detail": "This console accepts local requests only"})
@@ -75,6 +84,7 @@ def get_state():
 async def event_stream(request: Request, after: int = 0):
     async def stream():
         cursor = max(after, int(request.headers.get("last-event-id", "0")))
+        started = time.monotonic()
         while not await request.is_disconnected():
             with state_lock:
                 fresh = [event for event in events if event["seq"] > cursor]
@@ -83,6 +93,9 @@ async def event_stream(request: Request, after: int = 0):
                 yield f"id: {cursor}\ndata: {json.dumps(event)}\n\n"
             if not fresh:
                 yield ": keepalive\n\n"
+            # Hosted connections reconnect with Last-Event-ID before either platform's timeout.
+            if os.environ.get("ROBOT_WEB_TOKEN") and time.monotonic() - started > 25:
+                break
             await asyncio.sleep(.12)
     return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
@@ -134,6 +147,10 @@ def execute(run_id, payload):
     except Exception as exc:
         publish({"type": "error", "message": f"{type(exc).__name__}: {exc}", "run_id": run_id})
     finally:
+        try:
+            persist_runs()
+        except Exception:
+            publish({"type": "error", "message": "The run completed, but its recording could not be saved.", "run_id": run_id})
         with state_lock:
             state["busy"] = False
         publish({"type": "idle", "run_id": run_id})

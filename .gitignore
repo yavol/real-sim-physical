@@ -10,6 +10,8 @@
 .venv/
 .vendor/
 node_modules/
+.vercel/
+/dist/
 __pycache__/
 *.py[cod]
 

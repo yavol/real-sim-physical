@@ -19,6 +19,11 @@ function json(res, status, value) {
 }
 
 async function readJson(req) {
+  if (req.body !== undefined) {
+    const encoded = Buffer.isBuffer(req.body) ? req.body : Buffer.from(typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
+    if (encoded.length > 260_000) throw new InputError('Request too large. Use compressed camera frames.', 413);
+    try { return JSON.parse(encoded.toString()); } catch { throw new InputError('Invalid JSON.'); }
+  }
   const chunks = [];
   let size = 0;
   for await (const chunk of req) {
@@ -30,14 +35,14 @@ async function readJson(req) {
   catch { throw new InputError('Invalid JSON.'); }
 }
 
-export function createCaptureServer({ apiKey = localEnv.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY, model = localEnv.OPENROUTER_MODEL || process.env.OPENROUTER_MODEL || MODEL, openaiKey = localEnv.OPENAI_API_KEY || process.env.OPENAI_API_KEY, voiceModel = localEnv.OPENAI_VOICE_MODEL || process.env.OPENAI_VOICE_MODEL || VOICE_MODEL, ttsModel = localEnv.OPENAI_TTS_MODEL || TTS_MODEL, voiceName = localEnv.OPENAI_VOICE || VOICE, voiceFetchImpl = fetch, fetchImpl = fetch, requestTimeout = 18_000 } = {}) {
+export function createCaptureHandler({ apiKey = localEnv.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY, model = localEnv.OPENROUTER_MODEL || process.env.OPENROUTER_MODEL || MODEL, openaiKey = localEnv.OPENAI_API_KEY || process.env.OPENAI_API_KEY, voiceModel = localEnv.OPENAI_VOICE_MODEL || process.env.OPENAI_VOICE_MODEL || VOICE_MODEL, ttsModel = localEnv.OPENAI_TTS_MODEL || process.env.OPENAI_TTS_MODEL || TTS_MODEL, voiceName = localEnv.OPENAI_VOICE || process.env.OPENAI_VOICE || VOICE, voiceFetchImpl = fetch, fetchImpl = fetch, requestTimeout = 18_000, allowedHosts = ['localhost', '127.0.0.1'] } = {}) {
   let activeRequests = 0;
   let lastRequest = 0;
   let voiceCreating = false;
   let lastVoiceCreated = 0;
   let speechActive = 0;
   const speechCache = new Map();
-  return http.createServer(async (req, res) => {
+  return async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
@@ -47,7 +52,7 @@ export function createCaptureServer({ apiKey = localEnv.OPENROUTER_API_KEY || pr
       // Loopback only by default. Also guard paid API calls against cross-site requests/DNS rebinding.
       const host = req.headers.host;
       const hostName = host?.split(':')[0];
-      if (!['localhost', '127.0.0.1'].includes(hostName)) return json(res, 403, { error: 'Open this app on localhost.' });
+      if (!allowedHosts.includes(hostName)) return json(res, 403, { error: 'This host is not enabled for the capture API.' });
       const url = new URL(req.url, `http://${host}`);
       if (req.headers.origin && req.headers.origin !== `http://${host}` && req.headers.origin !== `https://${host}`) return json(res, 403, { error: 'Cross-origin requests are not allowed.' });
       if (url.pathname === '/api/config' && req.method === 'GET') {
@@ -158,7 +163,11 @@ export function createCaptureServer({ apiKey = localEnv.OPENROUTER_API_KEY || pr
       if (error.name === 'AbortError' || error.name === 'TimeoutError') return json(res, 504, { error: 'Clef took too long. Your capture is safe; retry the check.' });
       json(res, 502, { error: 'The checkpoint service could not be reached. Check your connection and retry.' });
     }
-  });
+  };
+}
+
+export function createCaptureServer(options = {}) {
+  return http.createServer(createCaptureHandler(options));
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

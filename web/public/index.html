@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Observe a human demonstration. Give a humanoid a task. Two live experiments in physical intelligence.">
+  <meta name="theme-color" content="#eeeee5">
+  <title>Relay — From the real world, into motion</title>
+  <link rel="icon" href="/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/hub.css">
+  <script type="module" src="/hub.js"></script>
+</head>
+<body>
+  <header><a class="brand" href="/" aria-label="Relay home"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M8 26V10h10a8 8 0 0 1 0 16h-4V16h4a2 2 0 0 1 0 4" stroke="currentColor" stroke-width="3.5"/></svg>relay<span> / physical intelligence</span></a><div class="top-note"><i></i><span>TWO EXPERIMENTS. ONE WORKBENCH.</span></div></header>
+  <main>
+    <section class="intro"><div><p class="eyebrow">REAL → SIM → PHYSICAL</p><h1>From the real world,<br><em>into motion.</em></h1></div><p class="intro-copy">Start with a human demonstration.<br>Explore what a robot can do.<br>A workbench for the space in between.</p></section>
+    <section class="experiments" aria-label="Choose a demo">
+      <article class="experiment capture-card">
+        <div class="card-heading"><span class="eyebrow">01 / OBSERVE THE REAL WORLD</span><span class="pill">CAMERA + VOICE</span></div>
+        <div class="capture-art" aria-hidden="true"><div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="capture-label"><i></i>HUMAN DEMONSTRATION</div><svg class="hand-art" viewBox="0 0 500 250" fill="none"><g stroke="#5c8c78" stroke-width="1.5" opacity=".65"><path d="M109 230 136 153 150 112 148 58 155 37 165 38 172 61 173 112 183 47 191 23 203 24 210 44 205 114 220 64 232 52 243 57 245 73 231 132 261 101 278 95 289 106 284 121 248 167 218 192 207 230"/><path d="m136 153 37-41 32 2 26 18 17 35M150 112l23 0m10-65 8 54m29-37-10 52M139 155l-28-28-24-5-8 10 13 20 28 38-11 40"/></g><g stroke="#94d6b8" stroke-width="2"><path d="m109 230 27-77 37-41 32 2 26 18 17 35-30 25-11 38M173 112l-1-51-7-23-10-1-7 21 2 54M183 47l8-24 12 1 7 20-5 70M220 64l12-12 11 5 2 16-14 59M248 167l36-46 5-15-11-11-17 6-30 31M136 153l-25-26-24-5-8 10 13 20 28 38"/></g><g fill="#d0f2d9"><circle cx="109" cy="230" r="4"/><circle cx="136" cy="153" r="4"/><circle cx="173" cy="112" r="4"/><circle cx="205" cy="114" r="4"/><circle cx="231" cy="132" r="4"/><circle cx="248" cy="167" r="4"/><circle cx="165" cy="38" r="4"/><circle cx="203" cy="24" r="4"/><circle cx="243" cy="57" r="4"/><circle cx="278" cy="95" r="4"/></g><g transform="translate(333 130)" stroke="#e4e9bc" stroke-width="1.5"><path d="m0 18 57-18 36 18-57 20zM0 18v47l36 23 57-23V18M36 38v50"/><path d="m0 18 36 20 57-20"/></g><path d="M270 175h40m-8-8 8 8-8 8" stroke="#e4e9bc" stroke-width="1.5"/><text x="329" y="238" fill="#9cac9b" font-size="9" font-family="monospace" letter-spacing="2">TARGET AREA</text></svg><div class="capture-bottom"><span>BODY + HANDS</span><span>TRACK · VERIFY · SAVE ↗</span></div></div>
+        <div class="card-copy"><h2>Show how it’s done.</h2><p>Record a guided task with your camera. Track body and hands, confirm each placement, and save the video with its evidence.</p><div class="features"><span>ON-DEVICE LANDMARKS</span><span>CLEF CHECKPOINTS</span><span>LIVE VOICE</span></div><a class="launch" href="/collect" data-launch="collect">Open collection studio <span>↗</span></a></div>
+      </article>
+      <article class="experiment robot-card">
+        <div class="card-heading"><span class="eyebrow">02 / GIVE THE ROBOT A TASK</span><span class="pill">GR00T N1.6 · 3B</span></div>
+        <div class="robot-art"><img src="/media/robot.jpg" alt="Fourier GR-1 after placing a water bottle into a cardboard box in simulation"><button class="watch" id="watch-recording" aria-label="Watch the recorded robot rollout"><span>▶</span> WATCH A RUN</button><span class="recording-caption">RECORDED POLICY ROLLOUT / SEED 44</span></div>
+        <div class="card-copy"><h2>Let a policy try.</h2><p>Give a Fourier GR-1 an instruction. Watch NVIDIA’s learned policy act in simulation, orbit the scene, and replay every attempt.</p><div class="features"><span>REAL LEARNED POLICY</span><span>MODAL L40S</span><span>LIVE SIMULATION</span></div><a class="launch" href="/robot" data-launch="robot">Open robot console <span>↗</span></a></div>
+      </article>
+    </section>
+    <div class="connection-note"><span class="note-index">↳</span><p>Two independent demos, one shared question: <strong>how does an observation become an action?</strong><span>The human recordings are not used to train or control this robot policy.</span></p><button id="access-status" class="access-status" type="button">CHECKING ACCESS…</button></div>
+    <footer><span>RELAY / PHYSICAL INTELLIGENCE LAB</span><a href="https://github.com/yavol/real-sim-physical" target="_blank" rel="noopener noreferrer">EXPLORE THE SOURCE ↗</a><span>BUILT BY YAROSLAV VOLOVICH</span></footer>
+  </main>
+  <dialog id="access-dialog"><form id="access-form"><button class="dialog-close" type="button" aria-label="Close access dialog">×</button><p class="eyebrow">LIVE DEMO ACCESS</p><h2>Step into the lab.</h2><p>Enter the demo access code to use live camera checkpoints, voice, and the robot console.</p><label for="access-code">Demo access code</label><input id="access-code" name="code" type="password" autocomplete="current-password" required maxlength="128"><p id="access-error" class="error" role="status"></p><button class="unlock" type="submit">Unlock demos <span>↗</span></button></form></dialog>
+  <dialog id="recording-dialog"><button class="dialog-close" type="button" aria-label="Close recording">×</button><p class="eyebrow">GR00T N1.6 / RECORDED SIMULATION</p><video id="recorded-run" src="/media/robot-demo.mp4" controls playsinline preload="none"></video><p class="recording-note">“Put the water bottle into the cardboard box.” · Seed 44 · Unmodified learned policy.</p></dialog>
+</body>
+</html>

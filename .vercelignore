@@ -1,0 +1,17 @@
+.git
+.venv
+.vendor
+.env
+.env.*
+**/.env
+**/.env.*
+artifacts
+capture/artifacts
+capture/recordings
+library
+__pycache__
+**/__pycache__
+dist
+*.log
+*.pem
+*.key
