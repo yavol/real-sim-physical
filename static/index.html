@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tabletop — GR-1 command lab</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header><a href="/" class="wordmark">TABLETOP<span> / </span>LAB</a><div class="system"><i id="status-dot"></i><span id="connection">LOCAL CONSOLE</span><span class="divider">|</span> GR00T N1.6 × FOURIER GR-1</div></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">EXPERIMENT 001 / LANGUAGE → ACTION</p><h1>Give the robot<br><em>something to do.</em></h1></div><p class="intro-note">A tabletop, two drinks, an open box.<br>Type an instruction and watch a humanoid<br>policy work through it in simulation.</p></div>
+    <section class="workbench">
+      <div class="viewer-panel">
+        <div class="panel-bar"><span><b class="square"></b> SIMULATION FEED</span><div class="view-buttons"><button id="live-tab" class="active">3D VIEW</button><button id="replay-tab" disabled>REPLAY ↗</button></div></div>
+        <div class="camera-bar"><span>DRAG TO ORBIT · SCROLL TO ZOOM <span id="camera-angle"></span></span><div><button type="button" id="view-front">FRONT</button><button type="button" id="view-back">BACK</button><button type="button" id="view-top">TOP</button><button type="button" id="zoom-in" aria-label="Zoom in">+</button><button type="button" id="zoom-out" aria-label="Zoom out">−</button></div></div>
+        <div class="viewport" id="viewport">
+          <img id="feed" alt="Live simulation view" draggable="false" hidden>
+          <video id="replay" controls playsinline hidden></video>
+          <div id="empty"><div class="crosshair">+</div><span>GR-1 IS WAITING FOR A TASK</span><p>Your first run loads the policy on Modal.<br>The GPU sleeps after 10 minutes without a request.</p></div>
+          <span class="viewport-label">NVIDIA GR00T / ROBOT VIEW + POLICY CAMERA</span>
+          <span class="live-badge" id="live-badge" hidden><i></i> LIVE ROLLOUT</span>
+        </div>
+        <div class="telemetry"><div><span>SIMULATION</span><strong id="sim-time">0.0 <small>s</small></strong></div><div><span>MODEL INFERENCE</span><strong id="inference">— <small>ms / chunk</small></strong></div><div><span>STEPS</span><strong id="steps">0 <small>/ 400</small></strong></div><div><span>RESULT</span><strong id="result" class="result">AWAITING TASK</strong></div></div>
+        <div class="status-line"><span class="status-index">↳</span><span id="status">Enter a command to begin.</span></div>
+      </div>
+      <form class="control-panel" id="controls">
+        <div class="control-title"><span class="eyebrow">01 / TASK INPUT</span><span class="chip">3B POLICY</span></div>
+        <label for="command">What should GR-1 do?</label>
+        <textarea id="command" rows="3" maxlength="512">Put the soda can into the cardboard box.</textarea>
+        <div class="suggestions"><button type="button" data-command="Put the soda can into the cardboard box.">Can → box ↗</button><button type="button" data-command="Put the water bottle into the cardboard box.">Bottle → box ↗</button><button type="button" data-command="Put the can and then the water bottle into the cardboard box.">Both drinks → box ↗</button></div>
+        <div class="settings"><label for="scene">Scene<select id="scene"><option value="drinks">Can + bottle + box</option><option value="stock">Stock: bottle → cabinet</option></select></label><div class="setting-pair"><label for="seed">Scene seed<input id="seed" type="number" min="0" max="2147483647" value="42"></label><label for="horizon">Step limit<select id="horizon"><option value="200">200 · 10s</option><option value="400" selected>400 · 20s</option><option value="720">720 · 36s</option><option value="1000">1,000 · 50s</option></select></label></div></div>
+        <label class="swap-setting"><input id="swap-objects" type="checkbox"> Swap can / bottle positions</label>
+        <div class="run-actions"><button id="run" class="primary" type="submit">RUN INSTRUCTION <span>↗</span></button><button id="stop" type="button" disabled title="Stop rollout">■</button></div>
+        <p class="control-footnote">Instructions go directly to GR00T. Each run resets the scene; the same seed lets you compare commands.</p>
+        <div class="object-section"><p class="eyebrow">02 / SCENE OBJECTS</p><div id="objects" class="objects"><div class="object-row"><span class="object-icon">●</span><span>Soda can</span><small>ON TABLE</small></div><div class="object-row"><span class="object-icon">▯</span><span>Water bottle</span><small>ON TABLE</small></div><div class="object-row"><span class="object-icon">□</span><span>Cardboard box</span><small>RECEPTACLE</small></div></div></div>
+      </form>
+    </section>
+    <section class="journal"><div class="journal-heading"><h2>The run log<span id="run-count">00</span></h2><button id="refresh" class="text-button">REFRESH ↻</button></div><div id="history"><p class="no-runs">Each attempt leaves a recording and a result here.</p></div></section>
+    <footer><span>FOURIER GR-1 · ARMS + WAIST + FOURIER HANDS</span><span id="gpu-info">MODAL / L40S 48 GB</span><span>REAL POLICY · SIMULATED WORLD</span></footer>
+  </main><script src="/static/app.js"></script>
+</body>
+</html>

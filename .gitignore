@@ -1,0 +1,20 @@
+# Local credentials; keep only the blank setup template in Git.
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+
+# Local dependencies and Python caches.
+.venv/
+.vendor/
+node_modules/
+__pycache__/
+*.py[cod]
+
+# Generated runs, logs, uploads, and recordings.
+artifacts/
+recordings/
+*.log
+.DS_Store

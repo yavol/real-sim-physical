@@ -1,0 +1,17 @@
+{
+  "name": "relay-capture",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Voice-guided manipulation capture with Clef checkpoints and local MediaPipe tracking.",
+  "scripts": {
+    "setup": "node scripts/prepare-assets.mjs",
+    "dev": "node --env-file-if-exists=.env server.mjs",
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check server.mjs && node --check lib/checkpoints.mjs && node --check lib/voice.mjs && node --check public/app.js && node --check public/speech.js && node --check public/live-voice.js && node --check public/tracking-worker.js"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "0.10.32"
+  }
+}

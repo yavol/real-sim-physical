@@ -1,0 +1,5 @@
+modal==1.6.2
+fastapi==0.143.3
+uvicorn==0.54.0
+httpx==0.28.1
+pillow==13.0.0

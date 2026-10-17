@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f4ee">
+  <meta name="description" content="A voice-guided workspace for capturing human manipulation demonstrations, with live body and hand tracking.">
+  <title>Relay — Capture studio</title>
+  <link rel="icon" href="/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="rail" aria-label="Studio">
+      <a href="/" class="brand-mark" aria-label="Relay home"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M8 26V10h10a8 8 0 0 1 0 16h-4V16h4a2 2 0 0 1 0 4" stroke="currentColor" stroke-width="3.5" stroke-linecap="square"/></svg></a>
+      <div class="rail-label">HUMAN → MOTION</div>
+      <button class="rail-button selected" aria-label="Capture studio" title="Capture studio" id="studio-button"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg></button>
+      <div class="rail-bottom"><span class="connection-dot"></span><span>LOCAL</span></div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <a href="/" class="wordmark">relay<span> / capture studio</span></a>
+        <div class="top-actions"><span class="local-pill"><span></span> On this device</span><button class="icon-button" id="settings-button" aria-label="Capture settings" title="Capture settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6M16 14v6"/></svg></button></div>
+      </header>
+
+      <section class="session-header" aria-labelledby="session-title">
+        <div><div class="eyebrow"><span class="tiny-square"></span> DEMONSTRATION / 001</div><h1 id="session-title">A little guidance.<br class="mobile-break"> A real demonstration.</h1><p>Move naturally. Your guide will take it one step at a time.</p></div>
+        <div class="session-header-right"><span id="session-status" class="status-pill">Ready when you are</span><div class="session-clock"><span id="recording-dot"></span><span id="session-time">00:00</span></div></div>
+      </section>
+
+      <div class="workspace">
+        <section class="capture-column" aria-label="Camera and tracking">
+          <div class="camera-card">
+            <div class="camera-topline"><div class="camera-source"><span class="status-led" id="camera-led"></span><span id="camera-name">YOUR CAMERA</span></div><div class="camera-top-right"><span id="camera-resolution">WAITING FOR VIDEO</span><button class="camera-tool" id="mirror-button" aria-label="Turn camera mirroring off" title="Mirror preview" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 7l5 5-5 5V7Zm18 0-5 5 5 5V7Z"/></svg></button><button class="camera-tool" id="fullscreen-button" aria-label="Expand camera" title="Expand camera"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m8 0h5v-5"/></svg></button></div></div>
+            <div class="camera-stage" id="camera-stage">
+              <video id="webcam" autoplay playsinline muted class="mirrored" aria-label="Your live webcam"></video>
+              <canvas id="overlay" class="mirrored" aria-label="Live body, hands, and finger landmark overlay"></canvas>
+              <div class="viewfinder-corner tl"></div><div class="viewfinder-corner tr"></div><div class="viewfinder-corner bl"></div><div class="viewfinder-corner br"></div>
+              <div class="camera-placeholder" id="camera-placeholder">
+                <div class="placeholder-illustration" aria-hidden="true"><svg viewBox="0 0 200 120"><path class="desk" d="M16 94h168M32 94v14m136-14v14"/><path class="bottle" d="M126 33v9l-6 10v36h24V52l-6-10v-9Z"/><path class="cap" d="M125 28h14v6h-14z"/><path class="can" d="M67 59h25v30H67z"/><ellipse class="can-top" cx="79.5" cy="59" rx="12.5" ry="4"/><path class="line" d="M75 59h8M74 72h11M74 77h7"/><path class="scan" d="M46 37V22h17m94 15V22h-17M46 81v17h17m94-17v17h-17"/></svg><span class="illustration-cross c1">+</span><span class="illustration-cross c2">+</span></div>
+                <span class="placeholder-kicker">IT STARTS WITH YOUR POINT OF VIEW</span><h2>Make your next move.</h2><p>Set up your camera to see your hands,<br>objects, and a clear work surface.</p>
+                <button class="primary-button" id="enable-camera"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg><span>Enable camera</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+                <span class="camera-privacy">Camera access begins when you choose.</span>
+              </div>
+              <div class="stage-top-overlay" id="stage-top-overlay" hidden><span class="tracking-badge"><span></span><span id="tracking-badge-text">Loading tracking…</span></span><button class="zone-button" id="zone-button">Adjust target area <svg viewBox="0 0 16 16"><path d="m4 12 8-8M5 4h7v7"/></svg></button></div>
+              <div class="stage-bottom-overlay" id="stage-bottom-overlay" hidden><span id="zone-hint">Place objects inside the yellow target area</span><span class="mirror-label" id="mirror-label">MIRRORED PREVIEW</span></div>
+              <div class="stage-message" id="stage-message" role="status" hidden></div>
+              <div class="completion-overlay" id="completion-overlay" hidden><div class="completion-symbol"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></div><div class="eyebrow">THAT'S A WRAP</div><h2>Good moves. Captured.</h2><p>Both checkpoints are verified.<br>Your demonstration is ready to save.</p><button id="save-complete" class="primary-button">Save capture <svg viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg></button></div>
+            </div>
+            <div class="camera-controls"><div class="overlay-toggles"><button id="body-toggle" class="layer-toggle active" aria-pressed="true"><span class="body-dot"></span> Body</button><button id="hands-toggle" class="layer-toggle active" aria-pressed="true"><span class="hand-dot"></span> Hands + fingers</button></div><div class="camera-controls-right"><button class="text-button light" id="stop-camera" hidden>Camera off</button><span class="no-face">No face mesh</span></div></div>
+          </div>
+
+          <div class="telemetry-strip"><div><span class="telemetry-icon"><svg viewBox="0 0 24 24"><path d="m9 3 6 0m-3 0v5m-6 4 6-4 6 4m-6-4v8m0 0-5 5m5-5 5 5"/></svg></span><span class="telemetry-copy"><span>Body tracking</span><strong id="body-status">Waiting for camera</strong></span></div><div><span class="telemetry-icon hand"><svg viewBox="0 0 24 24"><path d="M8 13V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-5a1.5 1.5 0 0 1 3 0v7-2a1.5 1.5 0 0 1 3 0v4c0 5-2 7-6 7h-2l-7-7a1.5 1.5 0 0 1 2-2l3 3"/></svg></span><span class="telemetry-copy"><span>Hand tracking</span><strong id="hand-status">0 / 2 hands</strong></span></div><div><span class="telemetry-copy"><span>Landmark rate</span><strong id="tracking-rate">— <small>fps</small></strong></span><span class="tiny-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></div>
+
+          <section class="activity-panel" aria-labelledby="activity-heading"><div class="section-topline"><h2 id="activity-heading">Session activity</h2><span class="mono-label" id="check-count">0 CHECKS</span></div><div id="activity-log" class="activity-log" role="log" aria-live="polite"><div class="activity-empty"><span>↳</span> Your instructions and verified checkpoints will appear here.</div></div></section>
+        </section>
+
+        <aside class="guidance-column" aria-label="Voice guide and task sequence">
+          <section class="guide-card" aria-labelledby="guide-heading"><div class="guide-topline"><span class="eyebrow" id="guide-heading">YOUR VOICE GUIDE</span><button id="mute-button" class="icon-button" aria-label="Mute voice guidance" title="Mute voice guidance" aria-pressed="false"><svg id="speaker-icon" viewBox="0 0 24 24"><path d="m11 5-6 4H2v6h3l6 4V5Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div><span id="voice-connection" class="voice-connection">OPENAI · MARIN TTS</span><div class="voice-orb" id="voice-orb" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="guide-state" id="guide-state">LET'S GET YOU SET UP</span><h2 id="guide-title">I'll guide.<br>You demonstrate.</h2><p id="guide-description">Gather a soda can and a water bottle. Find a little room on your table. We'll do the rest together.</p><div class="guide-actions"><button id="repeat-button" class="text-button"><svg viewBox="0 0 20 20"><path d="M4 8a6 6 0 1 1 0 5M4 3v5h5"/></svg> Repeat instruction</button><button id="connect-voice" class="voice-connect-button">Talk to guide</button><button id="listen-button" class="mic-button" aria-label="Mute microphone" title="Mute microphone" aria-pressed="false" disabled hidden><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0m-7 7v5m-4 0h8"/></svg></button></div><span class="ai-voice-note">AI voice · Ask questions with Talk to guide</span><p id="voice-command-hint" class="voice-command-hint" hidden></p><p id="voice-caption" class="voice-caption" aria-live="off" hidden></p></section>
+
+          <section class="sequence-card" aria-labelledby="sequence-heading"><div class="section-topline"><h2 id="sequence-heading">The sequence</h2><span id="sequence-progress" class="sequence-count">0 / 2</span></div><div class="sequence-list" id="sequence-list"></div><div class="sequence-footnote"><svg viewBox="0 0 20 20"><path d="m5 10 3 3 7-7"/></svg> Checkpoints advance automatically</div></section>
+
+          <section class="model-card" aria-label="Checkpoint model"><div class="model-mark" aria-hidden="true"><svg viewBox="0 0 30 30"><path d="m15 3 12 7v10l-12 7-12-7V10l12-7Zm0 0v24M3 10l12 7 12-7M3 20l12-7 12 7"/></svg></div><div><strong>Clef Flash<span class="model-tag">VISION</span></strong><p id="model-status">Connecting to OpenRouter…</p></div><span class="model-led" id="model-led"></span></section>
+
+          <div class="capture-actions"><button class="primary-button start-button" id="start-session" disabled><span class="button-record-dot"></span><span>Start capture</span><svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><div class="running-controls" id="running-controls" hidden><button class="secondary-button" id="pause-session"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg><span>Pause</span></button><button class="secondary-button finish-button" id="finish-session"><span></span> Finish</button></div><div class="export-controls" id="export-controls" hidden><button class="secondary-button" id="download-video">Save video</button><button class="secondary-button" id="download-json">Save session JSON</button><button class="text-button" id="new-session">New capture ↗</button></div><p class="save-note" id="save-note">Video + landmarks stay on this device.<br>Camera frames go to Clef. Voice is generated by OpenAI.</p></div>
+        </aside>
+      </div>
+
+      <footer class="studio-footer"><div><span class="footer-logo">relay</span><span>Human demonstration. Machine understanding.</span></div><span class="footer-right">BODY + HANDS <span>·</span> VOICE GUIDED <span>·</span> MADE TO CAPTURE</span></footer>
+    </main>
+  </div>
+
+  <dialog id="settings-dialog" aria-labelledby="settings-title"><form method="dialog" id="settings-form"><div class="dialog-top"><div><span class="eyebrow">MAKE IT YOURS</span><h2 id="settings-title">Capture settings</h2></div><button value="cancel" class="icon-button" aria-label="Close settings"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><label>Camera<select id="camera-select"><option value="">Default camera</option></select></label>
+    <details id="iphone-camera-help" class="settings-explainer" hidden><summary>iPhone: Ultra Wide &amp; landscape</summary><p>For a wider view, open the Mac’s green Video menu, turn off Centre Stage, hover over its preview, and zoom out to 0.5×. You can also choose Main or Ultra Wide in the Centre Stage options.</p><p>For landscape, hold the phone horizontally before enabling its camera. If the picture stays sideways, turn off Portrait Orientation Lock on the iPhone, lock it again, then turn the camera off and on here. The preview and tracking overlay follow the video’s orientation.</p><a href="https://support.apple.com/en-gb/guide/mac-help/mchlp2980/26/mac/26" target="_blank" rel="noopener noreferrer">Apple’s camera controls ↗</a></details>
+    <div class="settings-grid"><label>Check interval<select id="interval-select"><option value="1000">Every 1 second</option><option value="2000">Every 2 seconds</option><option value="3000">Every 3 seconds</option></select></label><label>Confidence threshold<select id="threshold-select"><option value="0.85">85% · standard</option><option value="0.9">90% · strict</option><option value="0.95">95% · very strict</option></select></label></div><label>Objects, in order <span>One per line · up to 8</span><textarea id="tasks-input" rows="4" maxlength="650">soda can
+water bottle</textarea></label><p class="settings-explainer">The guide asks you to place each object inside the yellow target area and release it. Two consecutive confident checks confirm each step. Place a box within the area if that's your destination.</p><label class="checkbox-label"><input id="record-video" type="checkbox" checked> Record camera video locally</label><p class="settings-explainer">The preview can be mirrored. Recording and exported coordinates use the original, unmirrored camera image. Natural narration uses OpenAI TTS with Marin. Talk to guide opens an optional GPT-Live conversation for questions. Microphone audio goes to OpenAI only during that conversation. All guide speech is AI-generated.</p><p id="settings-error" class="settings-error" role="alert" hidden></p><div class="dialog-buttons"><button value="cancel" class="secondary-button">Cancel</button><button id="apply-settings" type="button" class="primary-button">Apply settings</button></div></form></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

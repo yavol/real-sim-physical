@@ -1,0 +1,26 @@
+[
+  {
+    "file": "public/models/pose_landmarker_lite.task",
+    "source": "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+    "bytes": 5777746,
+    "sha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
+  },
+  {
+    "file": "public/models/hand_landmarker.task",
+    "source": "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+    "bytes": 7819105,
+    "sha256": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1"
+  },
+  {
+    "file": "public/fonts/dm-sans-latin.woff2",
+    "source": "https://cdn.jsdelivr.net/fontsource/fonts/dm-sans:vf@5.2.8/latin-wght-normal.woff2",
+    "bytes": 36932,
+    "sha256": "9fea608a947e67020c33cad9a6fe3d60c54119dfb8cff87768a8117a15ed7543"
+  },
+  {
+    "file": "public/fonts/ibm-plex-mono-latin.woff2",
+    "source": "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n5ig.ttf",
+    "bytes": 128812,
+    "sha256": "a7fdc993f9f0387caedba4e42521136fa97e4c0837ae6239bf0413ccf8af00c2"
+  }
+]
