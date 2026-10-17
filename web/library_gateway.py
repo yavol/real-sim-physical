@@ -74,10 +74,6 @@ def create_gateway(secret, volume, runs):
                 runs.reload()
             except Exception:
                 pass  # A file still being read can be refreshed on the next pass.
-            try:
-                volume.reload()
-            except Exception:
-                pass  # Active uploads keep their current filesystem snapshot.
     threading.Thread(target=refresh_runs, daemon=True).start()
     used = {}
     web = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
