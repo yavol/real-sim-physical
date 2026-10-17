@@ -20,3 +20,4 @@ artifacts/
 recordings/
 *.log
 .DS_Store
+.vercel

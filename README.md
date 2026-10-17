@@ -12,7 +12,7 @@ Open <http://127.0.0.1:8765>. The server binds only to this laptop. The Modal SD
 
 Choose a scene and seed, enter a command, and press **Run instruction**. **Stop** requests cancellation after the current inference step. Every run starts from a fresh scene. Reuse a seed to compare instructions; the simulator and model random seeds are reset together. Recordings and JSON results are saved under `artifacts/runs/`.
 
-Drag the simulation image to orbit and scroll to zoom, or use **Front**, **Back**, **Top**, and the zoom buttons. The viewpoint can be changed during a rollout and afterward. The small inset shows the robot's actual policy camera. Camera changes during a run are included in its recording; they do not change what the NVIDIA model sees.
+Click and drag the simulation image to orbit. Use the **+ / −** buttons to zoom, or **Front**, **Back**, and **Top** for preset views. Scrolling does not change the camera, and dragging keeps the camera distance fixed. The viewpoint can be changed during a rollout and afterward. The small inset shows the robot's actual policy camera. Camera changes during a run are included in its recording; they do not change what the NVIDIA model sees.
 
 The GPU keeps the last scene available for inspection during its 10-minute idle window. After the container sleeps, start a new run to initialize another interactive scene.
 
@@ -62,3 +62,9 @@ To stop the deployed app entirely:
 - robosuite 1.5.1; PyTorch 2.7.1 CUDA 12.8; FlashAttention 2.7.4.post1.
 
 This checkpoint supports this GR-1 embodiment. A new scene and arbitrary language instructions remain generalization tests; simulator support alone does not guarantee a successful grasp or completed task. This setup does not train a policy from a webcam recording.
+
+## Search and organize videos
+
+Run `./start-library.sh` and open [Relay Video Library](http://127.0.0.1:8791). Upload videos, search titles/descriptions/tags, sort by date/name/duration/size, star favorites, and watch recordings. Human demonstrations and robot simulation recordings have separate filters. The Capture studio's **Save to library** saves a finished recording and its session evidence directly to the local library; reload Capture before a new session to get the new controls.
+
+Videos and metadata persist locally under `artifacts/library/`. A server-side VAST VSS connector supports authenticated browsing and content search once workspace access is available; local uploads are not automatically ingested into VAST. See [the library guide](library/README.md) for setup and the verified connection boundary.

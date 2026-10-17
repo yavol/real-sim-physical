@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Observe a human demonstration. Give a humanoid a task. Two live experiments in physical intelligence.">
+  <meta name="description" content="Observe a human demonstration. Give a humanoid a task. Capture demonstrations, watch a learned robot policy, and browse the public video library.">
   <meta name="theme-color" content="#eeeee5">
   <title>Relay — From the real world, into motion</title>
   <link rel="icon" href="/mark.svg" type="image/svg+xml">
@@ -10,7 +10,7 @@
   <script type="module" src="/hub.js"></script>
 </head>
 <body>
-  <header><a class="brand" href="/" aria-label="Relay home"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M8 26V10h10a8 8 0 0 1 0 16h-4V16h4a2 2 0 0 1 0 4" stroke="currentColor" stroke-width="3.5"/></svg>relay<span> / physical intelligence</span></a><div class="top-note"><i></i><span>TWO EXPERIMENTS. ONE WORKBENCH.</span></div></header>
+  <header><a class="brand" href="/" aria-label="Relay home"><svg viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M8 26V10h10a8 8 0 0 1 0 16h-4V16h4a2 2 0 0 1 0 4" stroke="currentColor" stroke-width="3.5"/></svg>relay<span> / physical intelligence</span></a><div class="top-note"><i></i><span>CAPTURE. SIMULATE. EXPLORE.</span></div></header>
   <main>
     <section class="intro"><div><p class="eyebrow">REAL → SIM → PHYSICAL</p><h1>From the real world,<br><em>into motion.</em></h1></div><p class="intro-copy">Start with a human demonstration.<br>Explore what a robot can do.<br>A workbench for the space in between.</p></section>
     <section class="experiments" aria-label="Choose a demo">
@@ -25,10 +25,10 @@
         <div class="card-copy"><h2>Let a policy try.</h2><p>Give a Fourier GR-1 an instruction. Watch NVIDIA’s learned policy act in simulation, orbit the scene, and replay every attempt.</p><div class="features"><span>REAL LEARNED POLICY</span><span>MODAL L40S</span><span>LIVE SIMULATION</span></div><a class="launch" href="/robot" data-launch="robot">Open robot console <span>↗</span></a></div>
       </article>
     </section>
-    <div class="connection-note"><span class="note-index">↳</span><p>Two independent demos, one shared question: <strong>how does an observation become an action?</strong><span>The human recordings are not used to train or control this robot policy.</span></p><button id="access-status" class="access-status" type="button">CHECKING ACCESS…</button></div>
+    <a class="library-launch" href="/library"><span class="eyebrow">03 / EXPLORE THE VIDEO LIBRARY</span><span class="library-title">Every move. Ready to find.</span><span class="library-copy">Browse human demonstrations and robot rollouts.<br>Search, filter, and play the shared archive.</span><span class="library-arrow">↗</span></a>
+    <div class="connection-note"><span class="note-index">↳</span><p>Two independent demos, one shared question: <strong>how does an observation become an action?</strong><span>The human recordings are not used to train or control this robot policy.</span></p><span class="access-status unlocked">OPEN DEMOS · NO LOGIN REQUIRED</span></div>
     <footer><span>RELAY / PHYSICAL INTELLIGENCE LAB</span><a href="https://github.com/yavol/real-sim-physical" target="_blank" rel="noopener noreferrer">EXPLORE THE SOURCE ↗</a><span>BUILT BY YAROSLAV VOLOVICH</span></footer>
   </main>
-  <dialog id="access-dialog"><form id="access-form"><button class="dialog-close" type="button" aria-label="Close access dialog">×</button><p class="eyebrow">LIVE DEMO ACCESS</p><h2>Step into the lab.</h2><p>Enter the demo access code to use live camera checkpoints, voice, and the robot console.</p><label for="access-code">Demo access code</label><input id="access-code" name="code" type="password" autocomplete="current-password" required maxlength="128"><p id="access-error" class="error" role="status"></p><button class="unlock" type="submit">Unlock demos <span>↗</span></button></form></dialog>
   <dialog id="recording-dialog"><button class="dialog-close" type="button" aria-label="Close recording">×</button><p class="eyebrow">GR00T N1.6 / RECORDED SIMULATION</p><video id="recorded-run" src="/media/robot-demo.mp4" controls playsinline preload="none"></video><p class="recording-note">“Put the water bottle into the cardboard box.” · Seed 44 · Unmodified learned policy.</p></dialog>
 </body>
 </html>

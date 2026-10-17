@@ -1,6 +1,7 @@
 import { CheckpointGate } from './session.js';
 import { LiveVoice } from './live-voice.js';
 import { SpeechGuide } from './speech.js';
+import { transferCaptureToLibrary } from './library.js';
 
 const $ = id => document.getElementById(id);
 const video = $('webcam');
@@ -53,6 +54,8 @@ let recordedChunks = [];
 let recordedBytes = 0;
 let recordingFinished = Promise.resolve();
 let recordingBlob;
+let savedLibraryVideoId;
+let savingLibrary = false;
 let startedAt = 0;
 let pausedAt = 0;
 let pausedTotal = 0;
@@ -208,6 +211,9 @@ function updateControls() {
   $('running-controls').hidden = !active;
   $('export-controls').hidden = !finished;
   $('download-video').hidden = !recordVideo || !recorder;
+  $('save-library').hidden = !recordVideo || !recorder;
+  $('save-library').disabled = savingLibrary || Boolean(savedLibraryVideoId);
+  $('save-library').textContent = savedLibraryVideoId ? 'Saved to library ✓' : savingLibrary ? 'Saving to library…' : 'Save to library ↗';
   $('pause-session').querySelector('span').textContent = phase === 'paused' ? 'Resume' : 'Pause';
   $('pause-session').setAttribute('aria-label', phase === 'paused' ? 'Resume capture' : 'Pause capture');
   $('settings-button').disabled = active || finished;
@@ -662,6 +668,21 @@ function download(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 function filename(extension) { return `relay-${session?.startedAt.replace(/[:.]/g, '-').slice(0, 19) || 'capture'}.${extension}`; }
+
+async function saveToLibrary() {
+  if (savingLibrary || savedLibraryVideoId || !['complete', 'finished'].includes(phase)) return;
+  const ownSession = session;
+  savingLibrary = true; updateControls();
+  try {
+    savedLibraryVideoId = await transferCaptureToLibrary(async () => {
+      await recordingFinished;
+      return { video: recordingBlob, filename: filename(recordingBlob?.type.includes('mp4') ? 'mp4' : 'webm'), session: ownSession };
+    });
+    toast('Video and session evidence saved to your library.');
+    activity('Video and session JSON saved to the local video library.', 'success');
+  } catch (error) { toast(error.message); }
+  finally { savingLibrary = false; updateControls(); }
+}
 async function saveVideo() {
   await recordingFinished;
   if (!recordingBlob?.size) return toast('No video was recorded. You can still save the session JSON.');
@@ -674,6 +695,8 @@ async function saveJson() {
 }
 function newSession() {
   if (!['complete', 'finished'].includes(phase)) return;
+  if (savingLibrary) return toast('Let the library finish saving this capture before starting another.');
+  savedLibraryVideoId = null;
   session = null; recorder = null; recordedChunks = []; recordingBlob = null; startedAt = 0; finishedElapsed = 0;
   phase = 'idle'; stepIndex = 0; totalChecks = 0;
   $('completion-overlay').hidden = true; $('session-time').textContent = '00:00'; $('check-count').textContent = '0 CHECKS';
@@ -744,6 +767,7 @@ $('fullscreen-button').addEventListener('click', async () => {
 $('zone-button').addEventListener('click', toggleZone);
 $('stop-camera').addEventListener('click', cameraDisconnected);
 $('download-video').addEventListener('click', saveVideo);
+$('save-library').addEventListener('click', saveToLibrary);
 $('download-json').addEventListener('click', saveJson);
 $('save-complete').addEventListener('click', async () => { await saveVideo(); await saveJson(); });
 $('new-session').addEventListener('click', newSession);
@@ -776,7 +800,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 window.addEventListener('beforeunload', event => {
-  if (session && (recordedChunks.length || session.landmarks.length)) { event.preventDefault(); event.returnValue = ''; }
+  if (session && !savedLibraryVideoId && (recordedChunks.length || session.landmarks.length)) { event.preventDefault(); event.returnValue = ''; }
 });
 window.addEventListener('pagehide', () => { cameraStream?.getTracks().forEach(track => track.stop()); worker?.terminate(); liveVoice.cleanup(); speechGuide.cleanup(); });
 navigator.mediaDevices?.addEventListener('devicechange', enumerateCameras);

@@ -2,13 +2,19 @@
 
 Production: [real-sim-physical.vercel.app](https://real-sim-physical.vercel.app/). Project: [yavol's Vercel workspace](https://vercel.com/yavols-projects/real-sim-physical).
 
-One Vercel project serves the launch page at `/`, the collection studio at `/collect`, and the robot console at `/robot`. Production builds use the repository root, `npm ci`, `npm run build`, and output directory `dist`. Connect `yavol/real-sim-physical` with `main` as the production branch to deploy each push automatically.
+One Vercel project serves the launch page at `/`, the collection studio at `/collect`, the robot console at `/robot`, and the video library at `/library`. Production builds use the repository root, `npm ci`, `npm run build`, and output directory `dist`. The connected `yavol/real-sim-physical` repository deploys each push to `main` automatically.
 
 ## Credentials and access
 
-Configure the variables listed in `.env.example` as private Vercel environment variables. Actual values live in the ignored `.env.local` on the development machine and in Vercel, never in Git or browser code. `DEMO_ACCESS_CODE` unlocks both live demos for twelve hours through a signed, HttpOnly, Secure, same-site cookie. The public home page and recorded simulation preview work without unlocking.
+Configure the variables listed in `.env.example` as private Vercel environment variables. Actual values live in the ignored `.env.local` on the development machine and in Vercel, never in Git or browser code. Production uses `DEMO_PUBLIC=true`: judges and anyone with the URL can browse all pages, play videos, and use the live collection and robot actions without an account or access code. API and gateway credentials remain server-side. In an installation with public mode disabled, live actions require the signed demo session; library browsing remains public.
 
-The collection API uses the existing OpenRouter and OpenAI integrations. Body/hand tracking runs in the visitor's browser; compressed checkpoint frames go to the vision provider, and optional live voice uses OpenAI. Recordings and session JSON are downloaded on the visitor's device.
+The collection API uses the existing OpenRouter and OpenAI integrations. Body/hand tracking runs in the visitor's browser; compressed checkpoint frames go to the vision provider, and optional live voice uses OpenAI. Visitors can download recordings/session JSON or explicitly save them to the shared cloud library.
+
+## Video library
+
+`modal_library.py` runs the existing Node library with FFmpeg in a separate CPU service. Original videos, compatible playback versions, thumbnails, session evidence, and metadata persist in the `real-sim-physical-library` Modal volume. The service also imports completed recordings from the shared robot runs volume. Only allowlisted library API routes are exposed by Vercel. Streaming and uploads use short-lived links scoped to an exact route and method; upload links also specify the file name and byte count. Large videos travel directly to the library service. A successful upload acknowledgement follows the persistent volume commit.
+
+The library is public to anyone with the demo URL, including new uploads. VAST indexing and semantic search remain unconnected until a real workspace is verified; title, description, and tag search works on the saved archive. Deploy library source updates separately with `.venv/bin/modal deploy --profile yavol modal_library.py`, then configure its endpoint as `LIBRARY_BACKEND_URL` in Vercel.
 
 ## Robot gateway
 

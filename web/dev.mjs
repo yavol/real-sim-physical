@@ -10,7 +10,7 @@ const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/ja
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/recordings/')) return api(req, res);
-  const pathname = ({ '/': '/index.html', '/robot': '/robot.html', '/collect': '/collect.html' })[url.pathname] || url.pathname;
+  const pathname = ({ '/': '/index.html', '/robot': '/robot.html', '/collect': '/collect.html', '/library': '/library/index.html' })[url.pathname] || url.pathname;
   const file = path.resolve(root, '.' + decodeURIComponent(pathname));
   if (!file.startsWith(root + path.sep) || pathname.split('/').some(part => part.startsWith('.'))) { res.writeHead(404); return res.end(); }
   try {

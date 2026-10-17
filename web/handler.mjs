@@ -2,6 +2,7 @@ import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { createCaptureHandler } from '../capture/server.mjs';
 import { accessMatches, authenticated, sessionCookie } from './auth.mjs';
+import { handleLibrary } from './library.mjs';
 
 function json(res, status, value) {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' });
@@ -49,9 +50,10 @@ export function createHostedHandler({ env = process.env, fetchImpl = fetch, capt
         if (url.searchParams.has('recording')) pathname = '/recordings/' + url.searchParams.get('recording');
         else pathname = '/api/' + (url.searchParams.get('route') || '');
       }
-      const unlocked = authenticated(req, env);
+      const publicDemos = env.DEMO_PUBLIC === 'true';
+      const unlocked = publicDemos || authenticated(req, env);
       if (pathname === '/api/session') {
-        if (req.method === 'GET') return json(res, 200, { unlocked, configured: Boolean(env.DEMO_ACCESS_CODE && env.DEMO_SESSION_SECRET), robot: Boolean(env.ROBOT_BACKEND_URL && env.ROBOT_WEB_TOKEN), collection: Boolean(env.OPENROUTER_API_KEY) });
+        if (req.method === 'GET') return json(res, 200, { unlocked, public: publicDemos, configured: publicDemos || Boolean(env.DEMO_ACCESS_CODE && env.DEMO_SESSION_SECRET), robot: Boolean(env.ROBOT_BACKEND_URL && env.ROBOT_WEB_TOKEN), collection: Boolean(env.OPENROUTER_API_KEY), library: Boolean(env.LIBRARY_BACKEND_URL && env.ROBOT_WEB_TOKEN) });
         if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed.' });
         if (!env.DEMO_ACCESS_CODE || !env.DEMO_SESSION_SECRET) return json(res, 503, { error: 'Live demo access is being configured.' });
         if (!req.headers['content-type']?.startsWith('application/json')) return json(res, 415, { error: 'Use application/json.' });
@@ -70,7 +72,8 @@ export function createHostedHandler({ env = process.env, fetchImpl = fetch, capt
         res.setHeader('Set-Cookie', sessionCookie(env, { secure: !['localhost', '127.0.0.1'].includes(host.split(':')[0]) }));
         return json(res, 200, { unlocked: true });
       }
-      if (!unlocked) return json(res, 401, { error: 'Unlock the live demos from the home page.', detail: 'Unlock the live demos from the home page.' });
+      if (pathname.startsWith('/api/library/') && (unlocked || ['GET', 'HEAD'].includes(req.method))) return await handleLibrary(req, res, { env, url, pathname, readBody, fetchImpl });
+      if (!unlocked) return json(res, 401, { error: 'Live demo access is unavailable.', detail: 'Live demo access is unavailable.' });
       if (captureRoutes.has(pathname)) { req.url = pathname; return capture(req, res); }
       const recording = /^\/recordings\/[0-9]{8}-[0-9]{6}-[a-f0-9]{6}\/rollout\.mp4$/.test(pathname);
       if (!robotRoutes.has(pathname) && !recording) return json(res, 404, { error: 'Unknown API route.' });

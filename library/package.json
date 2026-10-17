@@ -1,0 +1,12 @@
+{
+  "name": "relay-video-library",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "dev": "node --env-file-if-exists=.env server.mjs",
+    "check": "node --check server.mjs && node --check store.mjs && node --check vast.mjs && node --check public/app.js && node --check public/query.js",
+    "test": "node --test test/*.test.mjs"
+  }
+}

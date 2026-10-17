@@ -8,6 +8,7 @@
   "rewrites": [
     { "source": "/robot", "destination": "/robot.html" },
     { "source": "/collect", "destination": "/collect.html" },
+    { "source": "/library", "destination": "/library/index.html" },
     { "source": "/api/:route*", "destination": "/api/handler?route=:route*" },
     { "source": "/recordings/:file*", "destination": "/api/handler?recording=:file*" }
   ],

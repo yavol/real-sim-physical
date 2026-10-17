@@ -4,6 +4,7 @@ import http from 'node:http';
 import { once } from 'node:events';
 import { createHostedHandler } from '../handler.mjs';
 import { authenticated, sessionCookie } from '../auth.mjs';
+import { createHmac } from 'node:crypto';
 
 const env = { PUBLIC_HOST: 'demo.test', DEMO_ACCESS_CODE: 'test-invitation', DEMO_SESSION_SECRET: 'a-test-session-secret', ROBOT_BACKEND_URL: 'https://robot.example.test', ROBOT_WEB_TOKEN: 'private-gateway-token', OPENROUTER_API_KEY: 'test-checkpoint-key' };
 
@@ -27,7 +28,7 @@ test('metadata is public but contains no credentials; paid routes require a sess
   let calls = 0;
   const request = await withServer(t, { fetchImpl: async () => { calls++; throw new Error(); } });
   const info = await request('/api/session');
-  assert.deepEqual(await info.json(), { unlocked: false, configured: true, robot: true, collection: true });
+  assert.deepEqual(await info.json(), { unlocked: false, public: false, configured: true, robot: true, collection: true, library: false });
   for (const route of ['/api/state', '/api/events', '/api/config', '/api/checkpoint', '/api/voice/session', '/api/runs']) assert.equal((await request(route)).status, 401);
   assert.equal(calls, 0);
 });
@@ -90,4 +91,46 @@ test('capture requests retain the guarded route after Vercel rewrites', async t 
   const request = await withServer(t, { captureHandler: (req, res) => { res.writeHead(200); res.end(req.url); } });
   const response = await request('/api/handler?route=voice/speech', { unlocked: true, method: 'POST' });
   assert.equal(await response.text(), '/api/voice/speech');
+});
+
+test('public demos need no cookie and keep backend credentials server-side', async t => {
+  const request = await withServer(t, { env: { ...env, DEMO_PUBLIC: 'true' }, fetchImpl: async (url, options) => {
+    assert.equal(options.headers.Authorization, `Bearer ${env.ROBOT_WEB_TOKEN}`);
+    return Response.json({ busy: false });
+  }, captureHandler: (req, res) => { res.end('public capture'); } });
+  assert.equal((await (await request('/api/session')).json()).public, true);
+  assert.deepEqual(await (await request('/api/state')).json(), { busy: false });
+  assert.equal(await (await request('/api/config')).text(), 'public capture');
+});
+
+test('anonymous library browsing and video redirects work without revealing the gateway key', async t => {
+  const request = await withServer(t, { env: { ...env, LIBRARY_BACKEND_URL: 'https://library.example.test' }, fetchImpl: async (url, options) => {
+    assert.equal(url.pathname, '/api/library/videos');
+    assert.equal(options.headers.Authorization, `Bearer ${env.ROBOT_WEB_TOKEN}`);
+    return Response.json({ videos: [{ id: '12345678', title: 'Bottle placement' }] });
+  } });
+  assert.equal((await request('/api/library/videos')).status, 200);
+  const redirect = await request('/api/library/videos/12345678/stream');
+  assert.equal(redirect.status, 307);
+  const target = new URL(redirect.headers.get('location'));
+  assert.equal(target.origin, 'https://library.example.test');
+  assert.equal(target.href.includes(env.ROBOT_WEB_TOKEN), false);
+  const [payload, mac] = target.searchParams.get('ticket').split('.');
+  assert.equal(mac, createHmac('sha256', env.ROBOT_WEB_TOKEN).update('library-ticket.' + payload).digest('hex'));
+  assert.equal(JSON.parse(Buffer.from(payload, 'base64url')).path, target.pathname);
+});
+
+test('direct upload links are scoped by method, size, filename and expiry', async t => {
+  const request = await withServer(t, { env: { ...env, DEMO_PUBLIC: 'true', LIBRARY_BACKEND_URL: 'https://library.example.test' } });
+  const upload = body => request('/api/library/upload-ticket', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const response = await upload({ action: 'video', filename: 'demo.mp4', bytes: 8_000_000 });
+  assert.equal(response.status, 200);
+  const target = new URL((await response.json()).url);
+  const payload = JSON.parse(Buffer.from(target.searchParams.get('ticket').split('.')[0], 'base64url'));
+  assert.equal(payload.method, 'POST'); assert.equal(payload.bytes, 8_000_000); assert.equal(payload.filename, 'demo.mp4');
+  assert.equal(payload.path, '/api/library/videos'); assert.ok(payload.exp > Date.now() && payload.exp < Date.now() + 601_000);
+  assert.equal((await upload({ action: 'video', filename: '../secret.mp4', bytes: 10 })).status, 415);
+  assert.equal((await upload({ action: 'video', filename: 'demo.mp4', bytes: 301 * 1024 * 1024 })).status, 413);
+  assert.equal((await upload({ action: 'session', id: '12345678', bytes: 41 * 1024 * 1024 })).status, 413);
+  assert.equal((await upload(null)).status, 400);
 });

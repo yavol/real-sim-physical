@@ -8,7 +8,6 @@
 artifacts
 capture/artifacts
 capture/recordings
-library
 __pycache__
 **/__pycache__
 dist

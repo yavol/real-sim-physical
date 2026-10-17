@@ -22,3 +22,8 @@ export function sessionCookie(env, { secure = true, now = Date.now() } = {}) {
   const payload = `${now + 43_200_000}.${randomBytes(12).toString('hex')}`;
   return `${COOKIE}=${payload}.${signature(payload, env.DEMO_SESSION_SECRET)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=43200${secure ? '; Secure' : ''}`;
 }
+
+export function libraryTicket(payload, secret, now = Date.now()) {
+  const encoded = Buffer.from(JSON.stringify({ ...payload, exp: now + 600_000, nonce: randomBytes(16).toString('hex') })).toString('base64url');
+  return encoded + '.' + signature('library-ticket.' + encoded, secret);
+}
